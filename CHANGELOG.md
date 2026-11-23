@@ -8,6 +8,8 @@ Releases are git tags; the version repositories (kubex-py/k8s-1.NN) pin one.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-23
+
 The first release as a standalone tool. Until now the generator lived in kubex's workspace as
 `scripts/codegen`; its history came along.
 
@@ -32,3 +34,6 @@ The first release as a standalone tool. Until now the generator lived in kubex's
 
 - `kubex-codegen --version`.
 - The LICENSE copied into generated packages ships with the tool.
+
+[unreleased]: https://github.com/kubex-py/kubex-codegen/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/kubex-py/kubex-codegen/releases/tag/v0.1.0
