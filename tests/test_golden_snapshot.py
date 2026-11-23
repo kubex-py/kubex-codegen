@@ -6,8 +6,7 @@ If the generator's output changes intentionally, regenerate the golden with:
     uv run kubex-codegen generate \\
       --swagger tests/fixtures/mini_swagger.json \\
       --k8s-version 1.30 \\
-      --package-dir tests/golden/kubex-k8s-1-30 \\
-      --package-version 0.0.0.dev0
+      --package-dir tests/golden/kubex-k8s-1-30
 
 Reviewers see the diff in the PR so generator changes are auditable.
 """
@@ -26,8 +25,7 @@ FIXTURE = Path(__file__).parent / "fixtures" / "mini_swagger.json"
 GOLDEN_ROOT = Path(__file__).parent / "golden" / "kubex-k8s-1-30"
 REGENERATE = (
     "uv run kubex-codegen generate --swagger tests/fixtures/mini_swagger.json "
-    "--k8s-version 1.30 --package-dir tests/golden/kubex-k8s-1-30 "
-    "--package-version 0.0.0.dev0"
+    "--k8s-version 1.30 --package-dir tests/golden/kubex-k8s-1-30"
 )
 
 
@@ -66,7 +64,6 @@ def _regenerate(tmp_path: Path) -> Path:
             package_root=tmp_path / "kubex-k8s-1-30",
             k8s_version="1.30",
             k8s_version_tag="v1_30",
-            package_version="0.0.0.dev0",
             modules=build.modules,
             shared_enums=build.shared_enums,
         )

@@ -5,7 +5,8 @@ whose root is the `kubex-k8s-1-NN` package. From that root:
 
     kubex-codegen regenerate --k8s-version 1.35 --package-dir .
 
-downloads the latest 1.35.x OpenAPI spec and regenerates the package in place.
+downloads the latest 1.35.x OpenAPI spec and regenerates the models in place.
+The repository's pyproject.toml is hand-written and left alone.
 `generate` does the same from a spec already on disk:
 
     kubex-codegen generate \\
@@ -41,15 +42,8 @@ PackageDir = Annotated[
     Path,
     typer.Option(
         help="Root of the package to write: the version repository's root, "
-        "e.g. '.'. Its kubex/k8s/v1_NN tree, pyproject.toml and LICENSE are "
-        "rewritten."
-    ),
-]
-PackageVersion = Annotated[
-    str | None,
-    typer.Option(
-        help="Generated package version (default: keep the existing "
-        "package's version, or 0.1.0-alpha.1 for a new package)"
+        "e.g. '.'. Its kubex/k8s/v1_NN tree and LICENSE are rewritten; "
+        "pyproject.toml is left alone."
     ),
 ]
 
@@ -92,7 +86,6 @@ def run_generate(
     *,
     package_dir: Path,
     v3_dir: Path | None = None,
-    package_version: str | None = None,
     only_groups: str | None = None,
     format: bool = True,
 ) -> Path:
@@ -124,7 +117,6 @@ def run_generate(
             package_root=package_dir,
             k8s_version=k8s_version,
             k8s_version_tag=k8s_version_tag,
-            package_version=package_version,
             modules=build.modules,
             shared_enums=build.shared_enums,
             clean=only_groups is None,
@@ -147,7 +139,6 @@ def generate(
         Path | None,
         typer.Option(help="Optional directory of v3 per-group files"),
     ] = None,
-    package_version: PackageVersion = None,
     only_groups: Annotated[
         str | None,
         typer.Option(help='Comma-separated groups to emit (e.g. "core,apps")'),
@@ -167,7 +158,6 @@ def generate(
             k8s_version,
             package_dir=package_dir,
             v3_dir=v3_dir,
-            package_version=package_version,
             only_groups=only_groups,
             format=format,
         )
@@ -229,7 +219,6 @@ def regenerate(
     cache_dir: Annotated[Path, typer.Option(help="Directory for cached specs")] = Path(
         ".cache/schemas"
     ),
-    package_version: PackageVersion = None,
     do_verify: Annotated[
         bool,
         typer.Option(
@@ -262,7 +251,6 @@ def regenerate(
             k8s_version,
             package_dir=package_dir,
             v3_dir=specs.v3_dir,
-            package_version=package_version,
         )
     except Exception as exc:
         typer.echo(f"Generation failed for {k8s_version}: {exc}", err=True)

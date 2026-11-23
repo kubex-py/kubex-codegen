@@ -199,65 +199,6 @@ def test_regenerate_verify_failure(
     assert "Verify failed for 1.35" in result.output
 
 
-@patch("kubex_codegen.__main__.run_verify")
-@patch("kubex_codegen.__main__.run_generate")
-@patch("kubex_codegen.fetch_specs.download_specs")
-@patch("kubex_codegen.fetch_specs.resolve_latest_release")
-def test_regenerate_passes_package_version(
-    mock_resolve: MagicMock,
-    mock_download: MagicMock,
-    mock_generate: MagicMock,
-    mock_verify: MagicMock,
-    tmp_path: Path,
-) -> None:
-    mock_resolve.return_value = "v1.35.4"
-    mock_download.return_value = _specs(tmp_path)
-    mock_generate.return_value = tmp_path
-    mock_verify.return_value = 0
-
-    result = runner.invoke(
-        app,
-        [
-            "regenerate",
-            "--k8s-version",
-            "1.35",
-            "--package-dir",
-            str(tmp_path),
-            "--package-version",
-            "2.0.0",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert mock_generate.call_args.kwargs["package_version"] == "2.0.0"
-
-
-@patch("kubex_codegen.__main__.run_verify")
-@patch("kubex_codegen.__main__.run_generate")
-@patch("kubex_codegen.fetch_specs.download_specs")
-@patch("kubex_codegen.fetch_specs.resolve_latest_release")
-def test_regenerate_without_package_version_keeps_existing(
-    mock_resolve: MagicMock,
-    mock_download: MagicMock,
-    mock_generate: MagicMock,
-    mock_verify: MagicMock,
-    tmp_path: Path,
-) -> None:
-    mock_resolve.return_value = "v1.35.4"
-    mock_download.return_value = _specs(tmp_path)
-    mock_generate.return_value = tmp_path
-    mock_verify.return_value = 0
-
-    result = runner.invoke(
-        app,
-        ["regenerate", "--k8s-version", "1.35", "--package-dir", str(tmp_path)],
-    )
-
-    assert result.exit_code == 0, result.output
-    # None means "keep the package's current version" (resolved at write time).
-    assert mock_generate.call_args.kwargs["package_version"] is None
-
-
 def test_generate_requires_a_package_dir(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
