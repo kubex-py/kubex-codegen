@@ -156,12 +156,11 @@ wheels = [
 
 [[package]]
 name = "kubex-codegen"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
     { name = "mypy" },
-    { name = "packaging" },
     { name = "ruff" },
     { name = "typer" },
 ]
@@ -177,7 +176,6 @@ dev = [
 requires-dist = [
     { name = "jinja2", specifier = ">=3.1" },
     { name = "mypy", specifier = "==2.4.0" },
-    { name = "packaging", specifier = ">=24.0" },
     { name = "ruff", specifier = "==0.15.22" },
     { name = "typer", specifier = ">=0.24.1" },
 ]

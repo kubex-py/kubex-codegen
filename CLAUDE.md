@@ -12,8 +12,8 @@ git tag. kubex-codegen is not published to PyPI.
   `naming`, `enum_emitter`, `imports`, `ir`) → `package_builder` renders through Jinja
   (`templates/`) and writes the package
 - `fetch_specs`: resolves the latest patch release and downloads swagger.json plus the v3 files
-- `templates/pyproject.toml.j2`: the generated package's whole pyproject.toml, including the
-  `kubex-core` range every model package depends on
+- The generated package is `kubex/k8s/v1_NN/` (and a README when missing). Each version
+  repository's `pyproject.toml` and `LICENSE` are hand-written; the generator never touches them.
 
 ## Commands
 
@@ -25,10 +25,10 @@ git tag. kubex-codegen is not published to PyPI.
 
 - The output must be reproducible. Ruff (pinned in `pyproject.toml`) runs through
   `package_builder.ruff_command`, with `--isolated` and the settings in `RUFF_TARGET_VERSION` /
-  `RUFF_KNOWN_FIRST_PARTY`; the template writes the same settings into the generated pyproject.
-  Changing either, or bumping ruff, can change every generated file.
+  `RUFF_KNOWN_FIRST_PARTY`. Version repositories must use the same settings and ruff version in
+  their pyproject.toml. Changing either, or bumping ruff, can change every generated file.
 - `tests/golden/` is the snapshot of the output for `tests/fixtures/mini_swagger.json`. Any change
   to it must be intentional; regenerate it with the command in the README and review the diff.
-- `--package-dir` is required on purpose: generating rewrites `pyproject.toml` in that directory.
+- `--package-dir` is required on purpose: generating replaces `kubex/k8s/v1_NN/` in that directory.
 - Releases are git tags (`vX.Y.Z`) matching `version` in pyproject.toml (checked by
   `.github/workflows/release.yaml`). Workflow files are named `.yaml`.

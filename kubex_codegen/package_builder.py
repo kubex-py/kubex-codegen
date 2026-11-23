@@ -3,9 +3,7 @@
 Produces a directory tree (the package root is a version repo, e.g. kubex-py/k8s-1.30):
 
     <package root>/
-    ├── LICENSE
-    ├── pyproject.toml
-    ├── README.md
+    ├── README.md            (only when missing)
     └── kubex/k8s/v1_30/
         ├── __init__.py
         ├── _common.py
@@ -18,33 +16,31 @@ Produces a directory tree (the package root is a version repo, e.g. kubex-py/k8s
 
 `kubex` and `kubex.k8s` are PEP 420 namespace — we do *not* create
 `__init__.py` files for those intermediate packages.
+
+The package's `pyproject.toml` and `LICENSE` are written by hand in its
+repository and never touched here.
 """
 
 from __future__ import annotations
 
-import importlib.metadata
 import shutil
 import subprocess
 import sys
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from packaging.version import Version
 
 from kubex_codegen import enum_emitter
 from kubex_codegen.ir import EmittedClass, EmittedField, EmittedModule
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
-_LICENSE = _TEMPLATE_DIR / "LICENSE"
-
-DEFAULT_PACKAGE_VERSION = "0.1.0-alpha.1"
 
 # The ruff settings the generated code is formatted with. Ruff runs with
 # `--isolated`, so the output doesn't depend on any ruff configuration around
-# the package directory; the generated pyproject.toml carries the same settings,
-# so the package's own `ruff check` / `ruff format --check` agree with it.
+# the package directory. A package's own pyproject.toml must use the same
+# settings (and ruff version) for its `ruff check` / `ruff format --check` to
+# agree with the generated code.
 RUFF_TARGET_VERSION = "py311"
 RUFF_KNOWN_FIRST_PARTY = ("kubex", "kubex_core")
 
@@ -70,34 +66,6 @@ def ruff_command(subcommand: str, *args: str) -> list[str]:
     ]
 
 
-def resolve_package_version(pkg_root: Path, requested: str | None) -> str:
-    """Pick the version to write into a generated package's pyproject.toml.
-
-    An explicit version wins. Otherwise an existing package keeps its current
-    version, so regenerating models never resets a released version (which
-    would also make `skip-existing` publishing silently drop the new models).
-    A brand-new package starts at `DEFAULT_PACKAGE_VERSION`.
-    """
-    if requested is not None:
-        return requested
-    pyproject = pkg_root / "pyproject.toml"
-    if pyproject.is_file():
-        version = tomllib.loads(pyproject.read_text()).get("project", {}).get("version")
-        if isinstance(version, str) and version:
-            return version
-    return DEFAULT_PACKAGE_VERSION
-
-
-def development_status(package_version: str) -> str:
-    """Map a version to its trove `Development Status` classifier value."""
-    version = Version(package_version)
-    if version.pre is None and not version.is_devrelease:
-        return "5 - Production/Stable"
-    if version.pre is not None and version.pre[0] in ("b", "rc"):
-        return "4 - Beta"
-    return "3 - Alpha"
-
-
 @dataclass
 class RenderInputs:
     """Inputs to `write_package`."""
@@ -105,9 +73,6 @@ class RenderInputs:
     package_root: Path  # the package (version repo) root, e.g. "."
     k8s_version: str  # "1.30"
     k8s_version_tag: str  # "v1_30"
-    # Package release version; None keeps the existing package's version
-    # (see `resolve_package_version`).
-    package_version: str | None
     modules: dict[str, EmittedModule]
     shared_enums: list[enum_emitter.EmittedEnum]  # enums destined for _common.py
     # Remove the existing module tree before writing; skipped for --only-groups,
@@ -137,20 +102,7 @@ def write_package(inputs: RenderInputs) -> Path:
         shutil.rmtree(src_root)
     src_root.mkdir(parents=True, exist_ok=True)
 
-    # pyproject.toml, README, LICENSE.
-    package_version = resolve_package_version(pkg_root, inputs.package_version)
-    pyproject = env.get_template("pyproject.toml.j2").render(
-        k8s_version=inputs.k8s_version,
-        k8s_version_dashed=k8s_version_dashed,
-        package_version=package_version,
-        development_status=development_status(package_version),
-        ruff_version=importlib.metadata.version("ruff"),
-        mypy_version=importlib.metadata.version("mypy"),
-        ruff_target_version=RUFF_TARGET_VERSION,
-        ruff_known_first_party=RUFF_KNOWN_FIRST_PARTY,
-    )
-    (pkg_root / "pyproject.toml").write_text(pyproject)
-    shutil.copyfile(_LICENSE, pkg_root / "LICENSE")
+    # A README for a new package. pyproject.toml and LICENSE are hand-written.
     readme_path = pkg_root / "README.md"
     if not readme_path.exists():
         readme_path.write_text(

@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from kubex_codegen import model_emitter, resource_detector, spec_loader
-from kubex_codegen.package_builder import RenderInputs, write_package
+from kubex_codegen.package_builder import RenderInputs, ruff_command, write_package
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini_swagger.json"
 
@@ -28,7 +28,6 @@ def generated_package(tmp_path: Path) -> Path:
             package_root=tmp_path / "kubex-k8s-1-30",
             k8s_version="1.30",
             k8s_version_tag="v1_30",
-            package_version="0.0.0.dev0",
             modules=build.modules,
             shared_enums=build.shared_enums,
         )
@@ -49,24 +48,23 @@ def test_package_layout(generated_package: Path) -> None:
     assert (src / "apps" / "v1" / "__init__.py").is_file()
     assert (src / "apps" / "v1" / "deployment.py").is_file()
     assert (src / "apps" / "v1" / "deployment_list.py").is_file()
-    assert (generated_package / "pyproject.toml").is_file()
-    assert (generated_package / "LICENSE").is_file()
+    # pyproject.toml and LICENSE are hand-written in the package's repository
+    assert not (generated_package / "pyproject.toml").exists()
+    assert not (generated_package / "LICENSE").exists()
     # Old flat files should NOT exist
     assert not (src / "core_v1.py").exists()
     assert not (src / "apps_v1.py").exists()
 
 
 def test_generated_is_ruff_clean(generated_package: Path) -> None:
-    """The package's own ruff configuration (from the generated pyproject.toml,
-    which is what its CI uses) agrees with how the generator formatted it."""
     result = subprocess.run(
-        [sys.executable, "-m", "ruff", "check", str(generated_package)],
+        ruff_command("check", str(generated_package)),
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     fmt = subprocess.run(
-        [sys.executable, "-m", "ruff", "format", "--check", str(generated_package)],
+        ruff_command("format", "--check", str(generated_package)),
         capture_output=True,
         text=True,
     )
@@ -255,7 +253,6 @@ def test_full_regeneration_removes_stale_modules(tmp_path: Path) -> None:
                 package_root=tmp_path / "kubex-k8s-1-30",
                 k8s_version="1.30",
                 k8s_version_tag="v1_30",
-                package_version="0.0.0.dev0",
                 modules=build.modules,
                 shared_enums=build.shared_enums,
             )
@@ -291,7 +288,6 @@ def test_only_groups_regeneration_preserves_other_groups(tmp_path: Path) -> None
                 package_root=tmp_path / "kubex-k8s-1-30",
                 k8s_version="1.30",
                 k8s_version_tag="v1_30",
-                package_version="0.0.0.dev0",
                 modules=build.modules,
                 shared_enums=build.shared_enums,
                 clean=clean,
@@ -372,3 +368,37 @@ def test_new_marker_bases_emitted() -> None:
     assert "HasAttach" in pod_class.bases
     assert "HasExec" in pod_class.bases
     assert "HasPortForward" in pod_class.bases
+
+
+def test_existing_pyproject_and_license_are_left_alone(tmp_path: Path) -> None:
+    """A package's pyproject.toml and LICENSE are hand-written; generating never
+    touches them."""
+    package_root = tmp_path / "kubex-k8s-1-30"
+    package_root.mkdir()
+    pyproject = '[project]\nname = "kubex-k8s-1-30"\nversion = "1.2.3"\n'
+    (package_root / "pyproject.toml").write_text(pyproject)
+    license_text = "Hand-written license\n"
+    (package_root / "LICENSE").write_text(license_text)
+
+    spec = spec_loader.load_swagger(FIXTURE)
+    resources = resource_detector.detect_resources(spec.definitions, spec.paths)
+    build = model_emitter.build_modules(
+        k8s_version_tag="v1_30",
+        definitions=spec.definitions,
+        resources=resources,
+    )
+    write_package(
+        RenderInputs(
+            package_root=package_root,
+            k8s_version="1.30",
+            k8s_version_tag="v1_30",
+            modules=build.modules,
+            shared_enums=build.shared_enums,
+        )
+    )
+
+    assert (package_root / "pyproject.toml").read_text() == pyproject
+    assert (package_root / "LICENSE").read_text() == license_text
+    assert (
+        package_root / "kubex" / "k8s" / "v1_30" / "core" / "v1" / "node.py"
+    ).is_file()

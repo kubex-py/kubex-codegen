@@ -1,6 +1,6 @@
 [project]
 name = "kubex-codegen"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generates the kubex-k8s-* Pydantic model packages from the Kubernetes OpenAPI spec"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -10,11 +10,10 @@ authors = [
 ]
 dependencies = [
     "jinja2>=3.1",
-    "packaging>=24.0",
     "typer>=0.24.1",
     # The generated code is formatted with ruff, and `verify` runs mypy. Both are
     # pinned so that a kubex-codegen release always produces the same package;
-    # the generated pyproject.toml pins the same versions for the package's CI.
+    # a package's pyproject.toml should pin the same versions for its CI.
     "ruff==0.15.22",
     "mypy==2.4.0",
 ]

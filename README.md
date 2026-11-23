@@ -19,9 +19,9 @@ uv run --with "kubex-codegen @ git+https://github.com/kubex-py/kubex-codegen@v0.
 ```
 
 This resolves the latest 1.35.x release, downloads its OpenAPI spec (cached in `.cache/schemas`),
-rewrites `kubex/k8s/v1_35/`, `pyproject.toml` and `LICENSE`, and verifies the result with ruff and
-strict mypy. The package keeps its version unless you pass `--package-version`. GitHub API calls
-use `GITHUB_TOKEN`, or `gh auth token` when it isn't set.
+rewrites `kubex/k8s/v1_35/`, and verifies the result with ruff and strict mypy. The repository's
+`pyproject.toml` (name, version, dependencies, tool settings) and `LICENSE` are written by hand
+and left alone. GitHub API calls use `GITHUB_TOKEN`, or `gh auth token` when it isn't set.
 
 `uv run --with` installs kubex-codegen into the version repository's environment, so `verify`'s
 mypy sees pydantic and kubex-core. With `--no-verify`, any environment works.
@@ -39,9 +39,18 @@ mypy sees pydantic and kubex-core. With `--no-verify`, any environment works.
 
 The generated code is formatted with ruff, which kubex-codegen pins along with mypy, and ruff runs
 with `--isolated` and fixed settings. A given kubex-codegen release therefore produces the same
-package wherever it runs. The generated `pyproject.toml` pins the same ruff and mypy versions and
-carries the same settings, so the version repository's CI checks the models the way they were
-generated.
+package wherever it runs.
+
+For the version repository's own CI to check the models the way they were generated, its
+`pyproject.toml` should pin the same ruff and mypy versions and use the same ruff settings:
+
+```toml
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint.isort]
+known-first-party = ["kubex", "kubex_core"]
+```
 
 ## Development
 
@@ -58,7 +67,7 @@ review the diff:
 
 ```bash
 uv run kubex-codegen generate --swagger tests/fixtures/mini_swagger.json --k8s-version 1.30 \
-    --package-dir tests/golden/kubex-k8s-1-30 --package-version 0.0.0.dev0
+    --package-dir tests/golden/kubex-k8s-1-30
 ```
 
 ## Releasing
