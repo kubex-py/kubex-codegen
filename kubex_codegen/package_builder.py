@@ -3,7 +3,6 @@
 Produces a directory tree (the package root is a version repo, e.g. kubex-py/k8s-1.30):
 
     <package root>/
-    ├── LICENSE
     ├── README.md            (only when missing)
     └── kubex/k8s/v1_30/
         ├── __init__.py
@@ -18,8 +17,8 @@ Produces a directory tree (the package root is a version repo, e.g. kubex-py/k8s
 `kubex` and `kubex.k8s` are PEP 420 namespace — we do *not* create
 `__init__.py` files for those intermediate packages.
 
-The package's `pyproject.toml` is written by hand in its repository and never
-touched here.
+The package's `pyproject.toml` and `LICENSE` are written by hand in its
+repository and never touched here.
 """
 
 from __future__ import annotations
@@ -36,7 +35,6 @@ from kubex_codegen import enum_emitter
 from kubex_codegen.ir import EmittedClass, EmittedField, EmittedModule
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
-_LICENSE = _TEMPLATE_DIR / "LICENSE"
 
 # The ruff settings the generated code is formatted with. Ruff runs with
 # `--isolated`, so the output doesn't depend on any ruff configuration around
@@ -104,8 +102,7 @@ def write_package(inputs: RenderInputs) -> Path:
         shutil.rmtree(src_root)
     src_root.mkdir(parents=True, exist_ok=True)
 
-    # LICENSE, and a README for a new package. pyproject.toml is hand-written.
-    shutil.copyfile(_LICENSE, pkg_root / "LICENSE")
+    # A README for a new package. pyproject.toml and LICENSE are hand-written.
     readme_path = pkg_root / "README.md"
     if not readme_path.exists():
         readme_path.write_text(

@@ -19,9 +19,9 @@ uv run --with "kubex-codegen @ git+https://github.com/kubex-py/kubex-codegen@v0.
 ```
 
 This resolves the latest 1.35.x release, downloads its OpenAPI spec (cached in `.cache/schemas`),
-rewrites `kubex/k8s/v1_35/` and `LICENSE`, and verifies the result with ruff and strict mypy. The
-repository's `pyproject.toml` (name, version, dependencies, tool settings) is written by hand and
-left alone. GitHub API calls use `GITHUB_TOKEN`, or `gh auth token` when it isn't set.
+rewrites `kubex/k8s/v1_35/`, and verifies the result with ruff and strict mypy. The repository's
+`pyproject.toml` (name, version, dependencies, tool settings) and `LICENSE` are written by hand
+and left alone. GitHub API calls use `GITHUB_TOKEN`, or `gh auth token` when it isn't set.
 
 `uv run --with` installs kubex-codegen into the version repository's environment, so `verify`'s
 mypy sees pydantic and kubex-core. With `--no-verify`, any environment works.

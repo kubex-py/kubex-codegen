@@ -48,9 +48,9 @@ def test_package_layout(generated_package: Path) -> None:
     assert (src / "apps" / "v1" / "__init__.py").is_file()
     assert (src / "apps" / "v1" / "deployment.py").is_file()
     assert (src / "apps" / "v1" / "deployment_list.py").is_file()
-    assert (generated_package / "LICENSE").is_file()
-    # pyproject.toml is hand-written in the package's repository
+    # pyproject.toml and LICENSE are hand-written in the package's repository
     assert not (generated_package / "pyproject.toml").exists()
+    assert not (generated_package / "LICENSE").exists()
     # Old flat files should NOT exist
     assert not (src / "core_v1.py").exists()
     assert not (src / "apps_v1.py").exists()
@@ -370,12 +370,15 @@ def test_new_marker_bases_emitted() -> None:
     assert "HasPortForward" in pod_class.bases
 
 
-def test_existing_pyproject_is_left_alone(tmp_path: Path) -> None:
-    """A package's pyproject.toml is hand-written; generating never touches it."""
+def test_existing_pyproject_and_license_are_left_alone(tmp_path: Path) -> None:
+    """A package's pyproject.toml and LICENSE are hand-written; generating never
+    touches them."""
     package_root = tmp_path / "kubex-k8s-1-30"
     package_root.mkdir()
     pyproject = '[project]\nname = "kubex-k8s-1-30"\nversion = "1.2.3"\n'
     (package_root / "pyproject.toml").write_text(pyproject)
+    license_text = "Hand-written license\n"
+    (package_root / "LICENSE").write_text(license_text)
 
     spec = spec_loader.load_swagger(FIXTURE)
     resources = resource_detector.detect_resources(spec.definitions, spec.paths)
@@ -395,6 +398,7 @@ def test_existing_pyproject_is_left_alone(tmp_path: Path) -> None:
     )
 
     assert (package_root / "pyproject.toml").read_text() == pyproject
+    assert (package_root / "LICENSE").read_text() == license_text
     assert (
         package_root / "kubex" / "k8s" / "v1_30" / "core" / "v1" / "node.py"
     ).is_file()

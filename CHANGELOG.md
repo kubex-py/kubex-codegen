@@ -14,6 +14,8 @@ Releases are git tags; the version repositories (kubex-py/k8s-1.NN) pin one.
   `--package-version` is gone with it. Each version repository keeps a hand-written
   `pyproject.toml` with the package's version, dependencies and tool settings; it should pin the
   ruff and mypy versions kubex-codegen uses and match its ruff settings (see the README).
+- **Breaking:** kubex-codegen no longer copies a `LICENSE` into the package; each version
+  repository keeps its own.
 - The `packaging` dependency.
 
 ## [0.1.0] - 2026-11-23

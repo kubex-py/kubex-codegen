@@ -12,8 +12,8 @@ git tag. kubex-codegen is not published to PyPI.
   `naming`, `enum_emitter`, `imports`, `ir`) → `package_builder` renders through Jinja
   (`templates/`) and writes the package
 - `fetch_specs`: resolves the latest patch release and downloads swagger.json plus the v3 files
-- The generated package is `kubex/k8s/v1_NN/` plus `LICENSE` (and a README when missing). Each
-  version repository's `pyproject.toml` is hand-written; the generator never touches it.
+- The generated package is `kubex/k8s/v1_NN/` (and a README when missing). Each version
+  repository's `pyproject.toml` and `LICENSE` are hand-written; the generator never touches them.
 
 ## Commands
 

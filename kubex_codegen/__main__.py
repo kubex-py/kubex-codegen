@@ -6,7 +6,7 @@ whose root is the `kubex-k8s-1-NN` package. From that root:
     kubex-codegen regenerate --k8s-version 1.35 --package-dir .
 
 downloads the latest 1.35.x OpenAPI spec and regenerates the models in place.
-The repository's pyproject.toml is hand-written and left alone.
+The repository's pyproject.toml and LICENSE are hand-written and left alone.
 `generate` does the same from a spec already on disk:
 
     kubex-codegen generate \\
@@ -42,8 +42,8 @@ PackageDir = Annotated[
     Path,
     typer.Option(
         help="Root of the package to write: the version repository's root, "
-        "e.g. '.'. Its kubex/k8s/v1_NN tree and LICENSE are rewritten; "
-        "pyproject.toml is left alone."
+        "e.g. '.'. Its kubex/k8s/v1_NN tree is rewritten; pyproject.toml and "
+        "LICENSE are left alone."
     ),
 ]
 
