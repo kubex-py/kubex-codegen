@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import re
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -11,6 +12,14 @@ from kubex_codegen.__main__ import app
 from kubex_codegen.fetch_specs import DownloadedSpecs
 
 runner = CliRunner()
+
+# Rich colors typer's usage errors where it detects CI, splitting option names
+# with escape codes.
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(output: str) -> str:
+    return _ANSI.sub("", output)
 
 
 def _specs(tmp_path: Path, tag: str = "v1.35.4") -> DownloadedSpecs:
@@ -98,7 +107,7 @@ def test_regenerate_requires_a_package_dir() -> None:
     # directory by accident.
     result = runner.invoke(app, ["regenerate", "--k8s-version", "1.35"])
     assert result.exit_code == 2
-    assert "--package-dir" in result.output
+    assert "--package-dir" in _plain(result.output)
 
 
 @pytest.mark.parametrize("version", ["", "1", "1.35.4", "v1.35", "1.x"])
@@ -261,7 +270,7 @@ def test_generate_requires_a_package_dir(tmp_path: Path) -> None:
         ],
     )
     assert result.exit_code == 2
-    assert "--package-dir" in result.output
+    assert "--package-dir" in _plain(result.output)
 
 
 def test_version_flag() -> None:
