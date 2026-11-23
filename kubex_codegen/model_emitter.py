@@ -18,16 +18,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from scripts.codegen import enum_emitter, ref_resolver
-from scripts.codegen.ir import (
+from kubex_codegen import enum_emitter, ref_resolver
+from kubex_codegen.ir import (
     BuildResult,
     EmittedClass,
     EmittedField,
     EmittedModule,
 )
-from scripts.codegen.naming import py_field_name
-from scripts.codegen.resource_detector import ResourceInfo
-from scripts.codegen.type_mapper import MappedType, map_type
+from kubex_codegen.naming import py_field_name
+from kubex_codegen.resource_detector import ResourceInfo
+from kubex_codegen.type_mapper import MappedType, map_type
 
 
 @dataclass

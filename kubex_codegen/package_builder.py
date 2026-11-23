@@ -1,8 +1,8 @@
 """Render `EmittedModule`s through Jinja and write the package to disk.
 
-Produces a directory tree:
+Produces a directory tree (the package root is a version repo, e.g. kubex-py/k8s-1.30):
 
-    packages/kubex-k8s-1-30/
+    <package root>/
     ├── LICENSE
     ├── pyproject.toml
     ├── README.md
@@ -22,8 +22,10 @@ Produces a directory tree:
 
 from __future__ import annotations
 
+import importlib.metadata
 import shutil
 import subprocess
+import sys
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,13 +33,41 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from packaging.version import Version
 
-from scripts.codegen import enum_emitter
-from scripts.codegen.ir import EmittedClass, EmittedField, EmittedModule
+from kubex_codegen import enum_emitter
+from kubex_codegen.ir import EmittedClass, EmittedField, EmittedModule
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
-_REPO_LICENSE = Path(__file__).resolve().parents[2] / "LICENSE"
+_LICENSE = _TEMPLATE_DIR / "LICENSE"
 
 DEFAULT_PACKAGE_VERSION = "0.1.0-alpha.1"
+
+# The ruff settings the generated code is formatted with. Ruff runs with
+# `--isolated`, so the output doesn't depend on any ruff configuration around
+# the package directory; the generated pyproject.toml carries the same settings,
+# so the package's own `ruff check` / `ruff format --check` agree with it.
+RUFF_TARGET_VERSION = "py311"
+RUFF_KNOWN_FIRST_PARTY = ("kubex", "kubex_core")
+
+
+def ruff_command(subcommand: str, *args: str) -> list[str]:
+    """A ruff command line with the generator's settings.
+
+    Ruff runs from this interpreter's environment, where kubex-codegen pins its
+    version, so a kubex-codegen release always formats the same way.
+    """
+    first_party = ", ".join(f"'{name}'" for name in RUFF_KNOWN_FIRST_PARTY)
+    return [
+        sys.executable,
+        "-m",
+        "ruff",
+        subcommand,
+        "--isolated",
+        "--config",
+        f"target-version = '{RUFF_TARGET_VERSION}'",
+        "--config",
+        f"lint.isort.known-first-party = [{first_party}]",
+        *args,
+    ]
 
 
 def resolve_package_version(pkg_root: Path, requested: str | None) -> str:
@@ -72,7 +102,7 @@ def development_status(package_version: str) -> str:
 class RenderInputs:
     """Inputs to `write_package`."""
 
-    output_root: Path  # e.g. packages/
+    package_root: Path  # the package (version repo) root, e.g. "."
     k8s_version: str  # "1.30"
     k8s_version_tag: str  # "v1_30"
     # Package release version; None keeps the existing package's version
@@ -96,7 +126,7 @@ def write_package(inputs: RenderInputs) -> Path:
     )
 
     k8s_version_dashed = inputs.k8s_version.replace(".", "-")
-    pkg_root = inputs.output_root / f"kubex-k8s-{k8s_version_dashed}"
+    pkg_root = inputs.package_root
     src_root = pkg_root / "kubex" / "k8s" / inputs.k8s_version_tag
     if inputs.clean and src_root.exists():
         # A full regeneration must not leave modules for resources that no
@@ -114,10 +144,13 @@ def write_package(inputs: RenderInputs) -> Path:
         k8s_version_dashed=k8s_version_dashed,
         package_version=package_version,
         development_status=development_status(package_version),
+        ruff_version=importlib.metadata.version("ruff"),
+        mypy_version=importlib.metadata.version("mypy"),
+        ruff_target_version=RUFF_TARGET_VERSION,
+        ruff_known_first_party=RUFF_KNOWN_FIRST_PARTY,
     )
     (pkg_root / "pyproject.toml").write_text(pyproject)
-    if _REPO_LICENSE.is_file():
-        shutil.copyfile(_REPO_LICENSE, pkg_root / "LICENSE")
+    shutil.copyfile(_LICENSE, pkg_root / "LICENSE")
     readme_path = pkg_root / "README.md"
     if not readme_path.exists():
         readme_path.write_text(
@@ -186,23 +219,10 @@ def write_package(inputs: RenderInputs) -> Path:
     # These sort imports (requires rules I-001) and tidy whitespace; without
     # them the snapshot test downstream would hit cosmetic diffs.
     subprocess.run(
-        [
-            "uv",
-            "run",
-            "ruff",
-            "check",
-            "--select",
-            "I",
-            "--fix",
-            "--quiet",
-            str(src_root),
-        ],
+        ruff_command("check", "--select", "I", "--fix", "--quiet", str(src_root)),
         check=False,
     )
-    subprocess.run(
-        ["uv", "run", "ruff", "format", "--quiet", str(src_root)],
-        check=False,
-    )
+    subprocess.run(ruff_command("format", "--quiet", str(src_root)), check=False)
     return pkg_root
 
 

@@ -1,7 +1,6 @@
-"""Kubernetes OpenAPI -> Pydantic v2 code generator for Kubex.
+"""Kubernetes OpenAPI -> Pydantic v2 code generator for kubex.
 
-Emits one distribution package per Kubernetes version (`kubex-k8s-1.30`, etc.)
-containing Pydantic models that plug into the `kubex_core.models.*` base types.
-
-See /home/user/kubex/scripts/codegen/__main__.py for the CLI entrypoint.
+Emits the `kubex-k8s-1-NN` distribution package for one Kubernetes version,
+with Pydantic models that plug into the `kubex_core.models.*` base types.
+The CLI entry point is `kubex_codegen.__main__` (the `kubex-codegen` command).
 """

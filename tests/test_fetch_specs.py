@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scripts.codegen.fetch_specs import (
+from kubex_codegen.fetch_specs import (
     DownloadedSpecs,
     _semver_sort_key,
     download_specs,
@@ -69,7 +69,7 @@ def test_semver_sort_order() -> None:
     ]
 
 
-@patch("scripts.codegen.fetch_specs.urllib.request.urlopen")
+@patch("kubex_codegen.fetch_specs.urllib.request.urlopen")
 def test_resolve_latest_release_stable(mock_urlopen: MagicMock) -> None:
     page1 = _make_releases(["v1.35.4", "v1.35.3", "v1.34.8", "v1.35.2"])
     mock_urlopen.side_effect = [
@@ -80,7 +80,7 @@ def test_resolve_latest_release_stable(mock_urlopen: MagicMock) -> None:
     assert result == "v1.35.4"
 
 
-@patch("scripts.codegen.fetch_specs.urllib.request.urlopen")
+@patch("kubex_codegen.fetch_specs.urllib.request.urlopen")
 def test_resolve_latest_release_prerelease_fallback(mock_urlopen: MagicMock) -> None:
     page1 = _make_releases(["v1.36.1", "v1.35.4"])
     refs = _make_refs(["v1.37.0-alpha.0", "v1.37.0-alpha.1"])
@@ -93,7 +93,7 @@ def test_resolve_latest_release_prerelease_fallback(mock_urlopen: MagicMock) -> 
     assert result == "v1.37.0-alpha.1"
 
 
-@patch("scripts.codegen.fetch_specs.urllib.request.urlopen")
+@patch("kubex_codegen.fetch_specs.urllib.request.urlopen")
 def test_resolve_latest_release_not_found(mock_urlopen: MagicMock) -> None:
     mock_urlopen.side_effect = [
         _mock_urlopen([]),
@@ -109,7 +109,7 @@ def test_resolve_latest_release_not_found(mock_urlopen: MagicMock) -> None:
         resolve_latest_release("1.99")
 
 
-@patch("scripts.codegen.fetch_specs.urllib.request.urlopen")
+@patch("kubex_codegen.fetch_specs.urllib.request.urlopen")
 def test_resolve_latest_release_multiple_pages(mock_urlopen: MagicMock) -> None:
     page1 = _make_releases([f"v1.34.{i}" for i in range(100)])
     page2 = _make_releases(["v1.35.0", "v1.35.1"])
@@ -122,8 +122,8 @@ def test_resolve_latest_release_multiple_pages(mock_urlopen: MagicMock) -> None:
     assert result == "v1.35.1"
 
 
-@patch("scripts.codegen.fetch_specs._download_file")
-@patch("scripts.codegen.fetch_specs._github_get")
+@patch("kubex_codegen.fetch_specs._download_file")
+@patch("kubex_codegen.fetch_specs._github_get")
 def test_download_specs_cache_miss(
     mock_github_get: MagicMock, mock_download: MagicMock, tmp_path: Path
 ) -> None:
@@ -142,8 +142,8 @@ def test_download_specs_cache_miss(
     assert "apis__apps__v1_openapi.json" in downloaded_names
 
 
-@patch("scripts.codegen.fetch_specs._download_file")
-@patch("scripts.codegen.fetch_specs._github_get")
+@patch("kubex_codegen.fetch_specs._download_file")
+@patch("kubex_codegen.fetch_specs._github_get")
 def test_download_specs_cache_hit(
     mock_github_get: MagicMock, mock_download: MagicMock, tmp_path: Path
 ) -> None:
@@ -159,8 +159,8 @@ def test_download_specs_cache_hit(
     mock_download.assert_not_called()
 
 
-@patch("scripts.codegen.fetch_specs._download_file")
-@patch("scripts.codegen.fetch_specs._github_get")
+@patch("kubex_codegen.fetch_specs._download_file")
+@patch("kubex_codegen.fetch_specs._github_get")
 def test_download_specs_v3_only_json_files(
     mock_github_get: MagicMock, mock_download: MagicMock, tmp_path: Path
 ) -> None:
@@ -175,8 +175,8 @@ def test_download_specs_v3_only_json_files(
     assert "api__v1_openapi.json" in str(v3_downloads[0].args[0])
 
 
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_fetch_all_specs(
     mock_resolve: MagicMock, mock_download: MagicMock, tmp_path: Path
 ) -> None:

@@ -24,7 +24,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from scripts.codegen.naming import py_field_name
+from kubex_codegen.naming import py_field_name
 
 # Swagger definition name -> (python module, class name).
 OVERRIDES: dict[str, tuple[str, str]] = {

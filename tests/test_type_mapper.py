@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from scripts.codegen.naming import py_field_name
-from scripts.codegen.type_mapper import MappedType, map_type
+from kubex_codegen.naming import py_field_name
+from kubex_codegen.type_mapper import MappedType, map_type
 
 
 def _map(

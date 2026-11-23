@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from scripts.codegen.resource_detector import detect_resources
+from kubex_codegen.resource_detector import detect_resources
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini_swagger.json"
 
