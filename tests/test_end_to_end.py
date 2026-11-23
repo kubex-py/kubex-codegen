@@ -25,7 +25,7 @@ def generated_package(tmp_path: Path) -> Path:
     )
     pkg = write_package(
         RenderInputs(
-            output_root=tmp_path,
+            package_root=tmp_path / "kubex-k8s-1-30",
             k8s_version="1.30",
             k8s_version_tag="v1_30",
             package_version="0.0.0.dev0",
@@ -57,14 +57,16 @@ def test_package_layout(generated_package: Path) -> None:
 
 
 def test_generated_is_ruff_clean(generated_package: Path) -> None:
+    """The package's own ruff configuration (from the generated pyproject.toml,
+    which is what its CI uses) agrees with how the generator formatted it."""
     result = subprocess.run(
-        ["uv", "run", "ruff", "check", str(generated_package)],
+        [sys.executable, "-m", "ruff", "check", str(generated_package)],
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     fmt = subprocess.run(
-        ["uv", "run", "ruff", "format", "--check", str(generated_package)],
+        [sys.executable, "-m", "ruff", "format", "--check", str(generated_package)],
         capture_output=True,
         text=True,
     )
@@ -237,7 +239,7 @@ def test_full_regeneration_removes_stale_modules(tmp_path: Path) -> None:
     """A resource removed from the spec must not survive a full regeneration.
 
     Simulates an upstream API group disappearing between two generator runs
-    against the same output directory (as `mise run regenerate-models` does).
+    against the same package directory (as `kubex-codegen regenerate` does).
     """
     spec = spec_loader.load_swagger(FIXTURE)
     resources = resource_detector.detect_resources(spec.definitions, spec.paths)
@@ -250,7 +252,7 @@ def test_full_regeneration_removes_stale_modules(tmp_path: Path) -> None:
         )
         return write_package(
             RenderInputs(
-                output_root=tmp_path,
+                package_root=tmp_path / "kubex-k8s-1-30",
                 k8s_version="1.30",
                 k8s_version_tag="v1_30",
                 package_version="0.0.0.dev0",
@@ -286,7 +288,7 @@ def test_only_groups_regeneration_preserves_other_groups(tmp_path: Path) -> None
         )
         return write_package(
             RenderInputs(
-                output_root=tmp_path,
+                package_root=tmp_path / "kubex-k8s-1-30",
                 k8s_version="1.30",
                 k8s_version_tag="v1_30",
                 package_version="0.0.0.dev0",

@@ -1,0 +1,31 @@
+# kubex-codegen is released as git tags (vX.Y.Z), not on PyPI: the version
+# repositories (kubex-py/k8s-1.NN) pin a tag. Pushing a tag checks that it
+# matches the version in pyproject.toml and points to a commit on main, then
+# creates the GitHub release.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: kubex-py/.github/.github/workflows/python-build.yml@main
+    with:
+      check-tag: true
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
