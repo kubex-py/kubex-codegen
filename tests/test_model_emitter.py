@@ -6,10 +6,10 @@ from typing import Any
 
 import pytest
 
-from scripts.codegen import model_emitter, resource_detector
-from scripts.codegen.ir import BuildResult, EmittedField
-from scripts.codegen.package_builder import _render_field
-from scripts.codegen.ref_resolver import OverrideDriftError
+from kubex_codegen import model_emitter, resource_detector
+from kubex_codegen.ir import BuildResult, EmittedField
+from kubex_codegen.package_builder import _render_field
+from kubex_codegen.ref_resolver import OverrideDriftError
 
 _META = "io.k8s.apimachinery.pkg.apis.meta.v1"
 _APIEXT = "io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.codegen.naming import (
+from kubex_codegen.naming import (
     camel_to_snake,
     class_name_for_enum,
     py_field_name,

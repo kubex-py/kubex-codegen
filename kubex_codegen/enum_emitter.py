@@ -14,8 +14,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from scripts.codegen.naming import screaming_snake
-from scripts.codegen.type_mapper import EnumRequest
+from kubex_codegen.naming import screaming_snake
+from kubex_codegen.type_mapper import EnumRequest
 
 
 @dataclass

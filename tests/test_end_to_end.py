@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts.codegen import model_emitter, resource_detector, spec_loader
-from scripts.codegen.package_builder import RenderInputs, write_package
+from kubex_codegen import model_emitter, resource_detector, spec_loader
+from kubex_codegen.package_builder import RenderInputs, write_package
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini_swagger.json"
 

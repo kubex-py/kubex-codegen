@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from scripts.codegen.ref_resolver import (
+from kubex_codegen.ref_resolver import (
     OVERRIDES,
     OverrideDriftError,
     collect_override_field_sets,

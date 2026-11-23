@@ -3,10 +3,10 @@ checked-in golden package under `tests/golden/kubex-k8s-1-30/`.
 
 If the generator's output changes intentionally, regenerate the golden with:
 
-    uv run python -m scripts.codegen generate \\
-      --swagger scripts/codegen/tests/fixtures/mini_swagger.json \\
+    uv run python -m kubex_codegen generate \\
+      --swagger kubex_codegen/tests/fixtures/mini_swagger.json \\
       --k8s-version 1.30 \\
-      --output scripts/codegen/tests/golden \\
+      --output tests/golden \\
       --package-version 0.0.0.dev0
 
 Reviewers see the diff in the PR so generator changes are auditable.
@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts.codegen import model_emitter, resource_detector, spec_loader
-from scripts.codegen.package_builder import RenderInputs, write_package
+from kubex_codegen import model_emitter, resource_detector, spec_loader
+from kubex_codegen.package_builder import RenderInputs, write_package
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini_swagger.json"
 GOLDEN_ROOT = Path(__file__).parent / "golden" / "kubex-k8s-1-30"
@@ -76,8 +76,8 @@ def test_generated_matches_golden(tmp_path: Path, relative: str) -> None:
     assert actual_path.is_file(), f"generator did not produce {relative}"
     assert expected_path.is_file(), (
         f"missing golden file {expected_path}; "
-        "regenerate the golden with `python -m scripts.codegen generate "
-        "--output scripts/codegen/tests/golden ...`"
+        "regenerate the golden with `python -m kubex_codegen generate "
+        "--output tests/golden ...`"
     )
     actual = actual_path.read_text()
     expected = expected_path.read_text()
@@ -92,9 +92,9 @@ def test_generated_matches_golden(tmp_path: Path, relative: str) -> None:
         )
         pytest.fail(
             f"Generated {relative} differs from the golden snapshot.\n"
-            f"Regenerate with: uv run python -m scripts.codegen generate "
-            f"--swagger scripts/codegen/tests/fixtures/mini_swagger.json "
-            f"--k8s-version 1.30 --output scripts/codegen/tests/golden "
+            f"Regenerate with: uv run python -m kubex_codegen generate "
+            f"--swagger kubex_codegen/tests/fixtures/mini_swagger.json "
+            f"--k8s-version 1.30 --output tests/golden "
             f"--package-version 0.0.0.dev0\n\n{diff}"
         )
 
@@ -114,8 +114,8 @@ def test_generated_file_set_matches_golden(tmp_path: Path) -> None:
         f"Generated file set differs from the golden tree.\n"
         f"Only in generated (not in golden): {sorted(generated - golden)}\n"
         f"Only in golden (not generated): {sorted(golden - generated)}\n"
-        f"Regenerate with: uv run python -m scripts.codegen generate "
-        f"--swagger scripts/codegen/tests/fixtures/mini_swagger.json "
-        f"--k8s-version 1.30 --output scripts/codegen/tests/golden "
+        f"Regenerate with: uv run python -m kubex_codegen generate "
+        f"--swagger kubex_codegen/tests/fixtures/mini_swagger.json "
+        f"--k8s-version 1.30 --output tests/golden "
         f"--package-version 0.0.0.dev0"
     )

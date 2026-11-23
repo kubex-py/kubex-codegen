@@ -31,8 +31,8 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from packaging.version import Version
 
-from scripts.codegen import enum_emitter
-from scripts.codegen.ir import EmittedClass, EmittedField, EmittedModule
+from kubex_codegen import enum_emitter
+from kubex_codegen.ir import EmittedClass, EmittedField, EmittedModule
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
 _REPO_LICENSE = Path(__file__).resolve().parents[2] / "LICENSE"

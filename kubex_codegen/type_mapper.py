@@ -15,8 +15,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from scripts.codegen import ref_resolver
-from scripts.codegen.naming import class_name_for_enum
+from kubex_codegen import ref_resolver
+from kubex_codegen.naming import class_name_for_enum
 
 
 @dataclass

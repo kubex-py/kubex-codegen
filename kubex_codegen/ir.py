@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from scripts.codegen.enum_emitter import EmittedEnum
-from scripts.codegen.imports import ImportSet
-from scripts.codegen.resource_detector import ResourceInfo
+from kubex_codegen.enum_emitter import EmittedEnum
+from kubex_codegen.imports import ImportSet
+from kubex_codegen.resource_detector import ResourceInfo
 
 
 @dataclass

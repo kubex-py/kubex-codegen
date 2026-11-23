@@ -6,16 +6,16 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from scripts.codegen.__main__ import app
-from scripts.codegen.fetch_specs import DownloadedSpecs
+from kubex_codegen.__main__ import app
+from kubex_codegen.fetch_specs import DownloadedSpecs
 
 runner = CliRunner()
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_calls_fetch_generate_verify_in_order(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -67,10 +67,10 @@ def test_regenerate_calls_fetch_generate_verify_in_order(
     assert gen_calls[1].kwargs["v3_dir"] == specs_136.v3_dir
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_no_verify(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -102,10 +102,10 @@ def test_regenerate_no_versions() -> None:
     assert "No versions specified" in result.output
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_generate_failure_reports_in_summary(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -131,10 +131,10 @@ def test_regenerate_generate_failure_reports_in_summary(
     mock_verify.assert_not_called()
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_verify_failure_reports_in_summary(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -160,10 +160,10 @@ def test_regenerate_verify_failure_reports_in_summary(
     assert "verify failed" in result.output
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_passes_package_version_and_output(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -199,10 +199,10 @@ def test_regenerate_passes_package_version_and_output(
     assert call_kwargs["output"] == tmp_path / "out"
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_without_package_version_keeps_existing(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -233,10 +233,10 @@ def test_regenerate_without_package_version_keeps_existing(
         ("1.35 , 1.36 ", ["1.35", "1.36"]),
     ],
 )
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_version_parsing(
     mock_resolve: MagicMock,
     mock_download: MagicMock,
@@ -267,10 +267,10 @@ def test_regenerate_version_parsing(
     assert actual_versions == expected_parsed
 
 
-@patch("scripts.codegen.__main__.run_verify")
-@patch("scripts.codegen.__main__.run_generate")
-@patch("scripts.codegen.fetch_specs.download_specs")
-@patch("scripts.codegen.fetch_specs.resolve_latest_release")
+@patch("kubex_codegen.__main__.run_verify")
+@patch("kubex_codegen.__main__.run_generate")
+@patch("kubex_codegen.fetch_specs.download_specs")
+@patch("kubex_codegen.fetch_specs.resolve_latest_release")
 def test_regenerate_fetch_failure_continues_other_versions(
     mock_resolve: MagicMock,
     mock_download: MagicMock,

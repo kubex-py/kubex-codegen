@@ -2,7 +2,7 @@
 
 Usage:
 
-    python -m scripts.codegen generate \\
+    python -m kubex_codegen generate \\
         --swagger ./openapi/1.30/swagger.json \\
         --v3-dir  ./openapi/1.30/v3 \\
         --k8s-version 1.30 \\
@@ -17,8 +17,8 @@ from typing import Annotated
 
 import typer
 
-from scripts.codegen import model_emitter, resource_detector, spec_loader
-from scripts.codegen.package_builder import RenderInputs, write_package
+from kubex_codegen import model_emitter, resource_detector, spec_loader
+from kubex_codegen.package_builder import RenderInputs, write_package
 
 app = typer.Typer(
     add_completion=False,
@@ -199,7 +199,7 @@ def regenerate(
     ] = True,
 ) -> None:
     """Download latest K8s OpenAPI specs and regenerate all model packages."""
-    from scripts.codegen.fetch_specs import download_specs, resolve_latest_release
+    from kubex_codegen.fetch_specs import download_specs, resolve_latest_release
 
     minor_versions = [v.strip() for v in versions.split(",") if v.strip()]
     if not minor_versions:

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts.codegen.ir import EmittedClass, EmittedField
-from scripts.codegen.package_builder import (
+from kubex_codegen.ir import EmittedClass, EmittedField
+from kubex_codegen.package_builder import (
     DEFAULT_PACKAGE_VERSION,
     _escape_string_literal,
     _render_class,
